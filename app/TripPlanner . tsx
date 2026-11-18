@@ -1,0 +1,190 @@
+
+"use client";
+
+import { useState, type FormEvent } from "react";
+
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+export default function TripPlanner() {
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      role: "assistant",
+      content:
+        "Namaste! Welcome to YATRA AI. Tell me about your Delhi trip, your budget, interests and travel duration. Let's create something memorable!",
+    },
+  ]);
+
+  function generateReply(request: string) {
+    const days = request.match(/(\d+)\s*days?/i)?.[1] || "2";
+    const budget =
+      request.match(/(?:₹|rs\.?\s*)([\d,]+)/i)?.[1] || "not specified";
+
+    const interests = [
+      "history",
+      "historical",
+      "monument",
+      "heritage",
+      "food",
+      "street food",
+      "shopping",
+      "nature",
+    ].filter((word) => request.toLowerCase().includes(word));
+
+    return `Wonderful! I've received your travel preferences.
+
+📍 Destination: Delhi
+📅 Duration: ${days} days
+💰 Budget: ${budget === "not specified" ? budget : "₹" + budget}
+❤️ Interests: ${interests.length ? interests.join(", ") : "General sightseeing"}
+
+Here is a sample starting itinerary:
+
+DAY 1
+• India Gate
+• Humayun's Tomb
+• Lodhi Garden
+• Explore local food options
+
+DAY 2
+• Red Fort
+• Jama Masjid
+• Chandni Chowk
+• Explore local markets
+
+I'll help you refine this plan according to your travel preferences.
+
+Note: This is a prototype itinerary. Actual AI recommendations, live prices and route verification will be connected in the next development stage.`;
+  }
+
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    if (!input.trim()) return;
+
+    const userMessage = input.trim();
+
+    setMessages((previous) => [
+      ...previous,
+      { role: "user", content: userMessage },
+      { role: "assistant", content: generateReply(userMessage) },
+    ]);
+
+    setInput("");
+  }
+
+  return (
+    <section
+      id="ai-chat"
+      className="px-5 md:px-16 py-24 bg-[#f4f2eb]"
+    >
+      <div className="max-w-4xl mx-auto">
+
+        <div className="text-center mb-12">
+          <p className="text-[#bd914f] tracking-[4px] text-xs font-bold uppercase">
+            Your Personal Travel Assistant
+          </p>
+
+          <h2 className="text-4xl md:text-5xl font-bold mt-4 text-[#183b32]">
+            Where will we take you?
+          </h2>
+
+          <p className="text-gray-500 mt-4">
+            Just describe your dream Delhi trip. We'll help you plan it.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
+
+          <div className="bg-[#183b32] p-6 flex items-center gap-4">
+            <div className="bg-[#d2a45e] rounded-full w-12 h-12 flex items-center justify-center text-xl">
+              ✈️
+            </div>
+
+            <div>
+              <h3 className="text-white font-bold text-lg">
+                YATRA AI
+              </h3>
+              <p className="text-green-200 text-xs">
+                Your Delhi travel companion
+              </p>
+            </div>
+          </div>
+
+          <div className="p-5 md:p-8 space-y-5 max-h-[500px] overflow-y-auto">
+
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  message.role === "user"
+                    ? "justify-end"
+                    : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[90%] md:max-w-[80%] rounded-2xl p-4 text-sm leading-7 whitespace-pre-line ${
+                    message.role === "user"
+                      ? "bg-[#183b32] text-white"
+                      : "bg-[#f4f2eb] text-gray-800"
+                  }`}
+                >
+                  {message.content}
+                </div>
+              </div>
+            ))}
+
+          </div>
+
+          <div className="px-5 pb-3">
+            <p className="text-xs text-gray-400 mb-3">
+              Try asking:
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              {[
+                "Plan a 2-day Delhi trip under ₹5000",
+                "I love historical places and food",
+                "Plan a family trip for 3 days",
+              ].map((prompt) => (
+                <button
+                  key={prompt}
+                  onClick={() => setInput(prompt)}
+                  className="border border-gray-200 rounded-full px-3 py-2 text-xs text-gray-600 hover:bg-[#f4f2eb]"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="p-5 border-t border-gray-100 flex gap-3"
+          >
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Describe your Delhi travel plans..."
+              className="flex-1 min-w-0 outline-none text-sm px-3 py-3 text-gray-800"
+            />
+
+            <button
+              type="submit"
+              className="bg-[#183b32] text-white rounded-xl px-6 py-3 hover:bg-[#285647] transition"
+            >
+              Send →
+            </button>
+          </form>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
